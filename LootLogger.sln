@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LootLogger", "LootLogger\LootLogger.csproj", "{1F2F66AF-844C-43D7-876F-C6398C9D150F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Debug|x86.ActiveCfg = Debug|x86
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Debug|x86.Build.0 = Debug|x86
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Release|x86.ActiveCfg = Release|x86
+		{1F2F66AF-844C-43D7-876F-C6398C9D150F}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA1BA02A-A6FC-4899-91FE-B0985D3EA3CA}
+	EndGlobalSection
+EndGlobal
