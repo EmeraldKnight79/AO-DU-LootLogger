@@ -13,7 +13,7 @@ namespace LootLogger
     {
         private ILootService lootService;
         private HttpClient client;
-        private const string itemsMappingUrl = "http://albion.netoone.fr/items/items.txt";
+        private const string itemsMappingUrl = "http://albion-items.s3.eu-central-1.amazonaws.com/items.txt";
         private bool isInitialized = false;
         private Dictionary<int, string> itemDictionary = new Dictionary<int, string>();
         SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
