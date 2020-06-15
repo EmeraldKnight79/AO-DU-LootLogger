@@ -45,11 +45,10 @@ namespace LootLogger
                 return;
             }
             EventCodes eventCode = (EventCodes)iCode;
-            if (eventCode == EventCodes.evOtherGrabbedLoot)
+            if (eventCode == EventCodes.OtherGrabbedLoot)
             {
                 this.OnLootPicked(parameters);
             }
-
         }
 
         public void OnResponse(byte operationCode, short returnCode, Dictionary<byte, object> parameters)

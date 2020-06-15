@@ -32,8 +32,15 @@ namespace LootLogger
             IPAddress.NetworkToHostOrder((int)p.ReadUInt16());
             p.ReadByte();
             byte commandCount = p.ReadByte();
+            try
+            {
             IPAddress.NetworkToHostOrder(p.ReadInt32());
             IPAddress.NetworkToHostOrder(p.ReadInt32());
+            }
+            catch
+            {
+
+            }
             int commandHeaderLength = 12;
             int signifierByteLength = 1;
             for (int commandIdx = 0; commandIdx < (int)commandCount; commandIdx++)
