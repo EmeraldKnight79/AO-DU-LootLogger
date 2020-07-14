@@ -14,7 +14,8 @@ namespace LootLogger
     {
         private ILootHandler lootService;
         private HttpClient client;
-        private const string itemsMappingUrl = "http://albion-items.s3.eu-central-1.amazonaws.com/items.txt";
+        // Kinda hackish until I can get something better running
+        private const string itemsMappingUrl = "https://raw.githubusercontent.com/broderickhyman/ao-bin-dumps/master/formatted/items.txt";
         private bool isInitialized = false;
         private Dictionary<int, string> itemDictionary = new Dictionary<int, string>();
         SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
@@ -109,11 +110,11 @@ namespace LootLogger
             {
                 var reponse = await this.client.GetAsync(new Uri(itemsMappingUrl));
                 var content = await reponse.Content.ReadAsStringAsync();
-                var lines = content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                var lines = content.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var line in lines ?? new string[] { })
                 {
                     string[] split = line.Split(new[] { ":" }, StringSplitOptions.None);
-                    itemDictionary.Add(int.Parse(split[0]), split[1]);
+                    itemDictionary.Add(int.Parse(split[0].Trim()), split[1].Trim());
                 }
                 this.isInitialized = true;
             }

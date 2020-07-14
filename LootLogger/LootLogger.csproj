@@ -112,11 +112,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventCodes.cs" />
-    <Compile Include="ILootService.cs" />
+    <Compile Include="LootHandlers\CSVHandler.cs" />
+    <Compile Include="LootHandlers\ILootHandler.cs" />
     <Compile Include="IPhotonEventHandler.cs" />
-    <Compile Include="LootService.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
     <Compile Include="Model\Loot.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="OperationCodes.cs" />
