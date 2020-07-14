@@ -1,4 +1,5 @@
-﻿using LootLogger.Model;
+﻿using LootLogger.LootHandlers;
+using LootLogger.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,13 +12,13 @@ namespace LootLogger
 {
     public class PacketHandler
     {
-        private ILootService lootService;
+        private ILootHandler lootService;
         private HttpClient client;
         private const string itemsMappingUrl = "http://albion-items.s3.eu-central-1.amazonaws.com/items.txt";
         private bool isInitialized = false;
         private Dictionary<int, string> itemDictionary = new Dictionary<int, string>();
         SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-        public PacketHandler(ILootService lootService)
+        public PacketHandler(ILootHandler lootService)
         {
             this.lootService = lootService;
             this.client = new HttpClient();
@@ -86,7 +87,7 @@ namespace LootLogger
 
                 if (!loot.IsTrash)
                 {
-                    lootService.AddLootForPlayer(loot, looter);
+                    lootService.AddLoot(loot);
                     string path = Path.Combine(Directory.GetCurrentDirectory(), "logs.txt");
                     string line = $"{looter} has looted {quantity}x {itemName} on {deadPlayer}";
                     Console.WriteLine(line);

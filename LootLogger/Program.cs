@@ -1,4 +1,5 @@
 ﻿using ExitGames.Client.Photon;
+using LootLogger.LootHandlers;
 using PcapDotNet.Core;
 using PcapDotNet.Packets;
 using PcapDotNet.Packets.Transport;
@@ -35,10 +36,6 @@ namespace LootLogger
                     logger?.SaveLootsToFile();
                     Console.WriteLine("Loots saved !");
                 }
-                else if (cki.Key == ConsoleKey.U)
-                {
-                    logger?.UploadLoots();
-                }
             }
         }
     }
@@ -47,12 +44,12 @@ namespace LootLogger
     {
 
         private PacketHandler _eventHandler;
-        private ILootService _lootService;
+        private ILootHandler _lootService;
         private PhotonPacketHandler photonPacketHandler;
 
         public LootLogger()
         {
-            this._lootService = new LootService();
+            this._lootService = new CSVHandler();
             this._eventHandler = new PacketHandler(this._lootService);
             this.photonPacketHandler = new PhotonPacketHandler(this._eventHandler);
 
@@ -66,12 +63,7 @@ namespace LootLogger
 
         public void SaveLootsToFile()
         {
-            _lootService.SaveLootsToFile();
-        }
-
-        public void UploadLoots()
-        {
-            _lootService.UploadLoots();
+            _lootService.Complete();
         }
 
         private void CreateListener()
