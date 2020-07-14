@@ -99,23 +99,34 @@ namespace LootLogger
                 while (enumerator.MoveNext())
                 {
                     PacketDevice selectedDevice = enumerator.Current;
+                    if (selectedDevice.Attributes == DeviceAttributes.Loopback)
+                    {
+                        continue;
+                    }
                     new Thread(delegate()
                     {
-                        using (PacketCommunicator communicator = selectedDevice.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000))
+                        try
                         {
-                            if (communicator.DataLink.Kind != DataLinkKind.Ethernet)
+                            using (PacketCommunicator communicator = selectedDevice.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000))
                             {
-                                Debug.WriteLine("This program works only on Ethernet networks.");
-                            }
-                            else
-                            {
-                                using (BerkeleyPacketFilter filter = communicator.CreateFilter("ip and udp"))
+                                if (communicator.DataLink.Kind != DataLinkKind.Ethernet)
                                 {
-                                    communicator.SetFilter(filter);
+                                    Debug.WriteLine("This program works only on Ethernet networks.");
                                 }
-                                Console.WriteLine("Capturing on " + selectedDevice.Description + "...");
-                                communicator.ReceivePackets(0, new HandlePacket(photonPacketHandler.PacketHandler));
+                                else
+                                {
+                                    using (BerkeleyPacketFilter filter = communicator.CreateFilter("ip and udp"))
+                                    {
+                                        communicator.SetFilter(filter);
+                                    }
+                                    Console.WriteLine("Capturing on " + selectedDevice.Description + "...");
+                                    communicator.ReceivePackets(0, new HandlePacket(photonPacketHandler.PacketHandler));
+                                }
                             }
+                        }
+                        catch (NotSupportedException ex)
+                        {
+                            Console.WriteLine($"Error listening on {selectedDevice.Description} because of {ex.Message}. Skipping this device. If it still works you can ignore this");
                         }
                     }).Start();
                 }

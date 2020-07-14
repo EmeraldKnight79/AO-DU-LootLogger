@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Net.Http;
 using System.Diagnostics;
+using CsvHelper;
+using System.Globalization;
 
 namespace LootLogger
 {
@@ -41,11 +43,31 @@ namespace LootLogger
 
         public void SaveLootsToFile()
         {
-            string content = JsonConvert.SerializeObject(this.players, Formatting.Indented);
-            using (var fs = File.Create(Path.Combine(Directory.GetCurrentDirectory(), $"CombatLoots-{DateTime.Now.ToString("dd-MMM-HH-mm-ss")}.txt")))
+            using (var fs = File.Create(Path.Combine(Directory.GetCurrentDirectory(), $"CombatLoots-{DateTime.Now.ToString("dd-MMM-HH-mm-ss")}.csv")))
             {
-                Byte[] bytes = new UTF8Encoding(true).GetBytes(content);
-                fs.Write(bytes, 0, bytes.Length);
+                using (CsvWriter writer = new CsvWriter(new StreamWriter(fs), CultureInfo.CurrentCulture))
+                {
+                    // Write header
+                    // Player
+                    // Looted From
+                    // Item
+                    // Amount
+                    writer.WriteField("Player");
+                    writer.WriteField("Looted From");
+                    writer.WriteField("Item");
+                    writer.WriteField("Amount");
+                    foreach(var player in this.players)
+                    {
+                        foreach(var loot in player.Loots.Where(i => !i.IsTrash))
+                        {
+                            writer.WriteField(player.Name);
+                            writer.WriteField(loot.BodyName);
+                            writer.WriteField(loot.ItemName);
+                            writer.WriteField(loot.Quantity);
+                            writer.NextRecord();
+                        }
+                    }
+                }
             }
         }
 
