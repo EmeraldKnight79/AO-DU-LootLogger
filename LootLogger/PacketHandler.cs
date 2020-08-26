@@ -1,4 +1,5 @@
-﻿using LootLogger.Model;
+﻿using LootLogger.LootHandlers;
+using LootLogger.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,13 +12,14 @@ namespace LootLogger
 {
     public class PacketHandler
     {
-        private ILootService lootService;
+        private ILootHandler lootService;
         private HttpClient client;
-        private const string itemsMappingUrl = "http://albion.netoone.fr/items/items.txt";
+        // Kinda hackish until I can get something better running
+        private const string itemsMappingUrl = "https://raw.githubusercontent.com/broderickhyman/ao-bin-dumps/master/formatted/items.txt";
         private bool isInitialized = false;
         private Dictionary<int, string> itemDictionary = new Dictionary<int, string>();
         SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-        public PacketHandler(ILootService lootService)
+        public PacketHandler(ILootHandler lootService)
         {
             this.lootService = lootService;
             this.client = new HttpClient();
@@ -45,11 +47,10 @@ namespace LootLogger
                 return;
             }
             EventCodes eventCode = (EventCodes)iCode;
-            if (eventCode == EventCodes.evOtherGrabbedLoot)
+            if (eventCode == EventCodes.OtherGrabbedLoot)
             {
                 this.OnLootPicked(parameters);
             }
-
         }
 
         public void OnResponse(byte operationCode, short returnCode, Dictionary<byte, object> parameters)
@@ -87,7 +88,7 @@ namespace LootLogger
 
                 if (!loot.IsTrash)
                 {
-                    lootService.AddLootForPlayer(loot, looter);
+                    lootService.AddLoot(loot);
                     string path = Path.Combine(Directory.GetCurrentDirectory(), "logs.txt");
                     string line = $"{looter} has looted {quantity}x {itemName} on {deadPlayer}";
                     Console.WriteLine(line);
@@ -109,11 +110,11 @@ namespace LootLogger
             {
                 var reponse = await this.client.GetAsync(new Uri(itemsMappingUrl));
                 var content = await reponse.Content.ReadAsStringAsync();
-                var lines = content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                var lines = content.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var line in lines ?? new string[] { })
                 {
                     string[] split = line.Split(new[] { ":" }, StringSplitOptions.None);
-                    itemDictionary.Add(int.Parse(split[0]), split[1]);
+                    itemDictionary.Add(int.Parse(split[0].Trim()), split[1].Trim());
                 }
                 this.isInitialized = true;
             }

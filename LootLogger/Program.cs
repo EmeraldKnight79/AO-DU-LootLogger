@@ -1,4 +1,5 @@
 ﻿using ExitGames.Client.Photon;
+using LootLogger.LootHandlers;
 using PcapDotNet.Core;
 using PcapDotNet.Packets;
 using PcapDotNet.Packets.Transport;
@@ -35,10 +36,6 @@ namespace LootLogger
                     logger?.SaveLootsToFile();
                     Console.WriteLine("Loots saved !");
                 }
-                else if (cki.Key == ConsoleKey.U)
-                {
-                    logger?.UploadLoots();
-                }
             }
         }
     }
@@ -47,12 +44,12 @@ namespace LootLogger
     {
 
         private PacketHandler _eventHandler;
-        private ILootService _lootService;
+        private ILootHandler _lootService;
         private PhotonPacketHandler photonPacketHandler;
 
         public LootLogger()
         {
-            this._lootService = new LootService();
+            this._lootService = new CSVHandler();
             this._eventHandler = new PacketHandler(this._lootService);
             this.photonPacketHandler = new PhotonPacketHandler(this._eventHandler);
 
@@ -66,12 +63,7 @@ namespace LootLogger
 
         public void SaveLootsToFile()
         {
-            _lootService.SaveLootsToFile();
-        }
-
-        public void UploadLoots()
-        {
-            _lootService.UploadLoots();
+            _lootService.Complete();
         }
 
         private void CreateListener()
@@ -99,23 +91,34 @@ namespace LootLogger
                 while (enumerator.MoveNext())
                 {
                     PacketDevice selectedDevice = enumerator.Current;
+                    if (selectedDevice.Attributes == DeviceAttributes.Loopback)
+                    {
+                        continue;
+                    }
                     new Thread(delegate()
                     {
-                        using (PacketCommunicator communicator = selectedDevice.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000))
+                        try
                         {
-                            if (communicator.DataLink.Kind != DataLinkKind.Ethernet)
+                            using (PacketCommunicator communicator = selectedDevice.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000))
                             {
-                                Debug.WriteLine("This program works only on Ethernet networks.");
-                            }
-                            else
-                            {
-                                using (BerkeleyPacketFilter filter = communicator.CreateFilter("ip and udp"))
+                                if (communicator.DataLink.Kind != DataLinkKind.Ethernet)
                                 {
-                                    communicator.SetFilter(filter);
+                                    Debug.WriteLine("This program works only on Ethernet networks.");
                                 }
-                                Console.WriteLine("Capturing on " + selectedDevice.Description + "...");
-                                communicator.ReceivePackets(0, new HandlePacket(photonPacketHandler.PacketHandler));
+                                else
+                                {
+                                    using (BerkeleyPacketFilter filter = communicator.CreateFilter("ip and udp"))
+                                    {
+                                        communicator.SetFilter(filter);
+                                    }
+                                    Console.WriteLine("Capturing on " + selectedDevice.Description + "...");
+                                    communicator.ReceivePackets(0, new HandlePacket(photonPacketHandler.PacketHandler));
+                                }
                             }
+                        }
+                        catch (NotSupportedException ex)
+                        {
+                            Console.WriteLine($"Error listening on {selectedDevice.Description} because of {ex.Message}. Skipping this device. If it still works you can ignore this");
                         }
                     }).Start();
                 }
